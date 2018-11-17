@@ -96,3 +96,7 @@ void DS2423::readCounter(uint8_t counter) {
 		_errorB = error;
 	}
 }
+
+String DS2423::toString() {
+  return "(" + String(_countA) + ", " + String(_countB) + ")";
+}

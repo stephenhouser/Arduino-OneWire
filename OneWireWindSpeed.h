@@ -27,7 +27,17 @@ class OneWireWindSpeed : public DS2423 {
     public:
         OneWireWindSpeed(OneWire *ow, uint8_t *address);
 
-		float getWindSpeed();
+        void begin();
+        void update();
+        String toString();
+
+		float getWindSpeedMPH();
+		float getWindSpeedKMPH();
+
+    private:
+        float windSpeedRPS;
+        unsigned long lastReadTimestamp = 0;
+        uint32_t lastReadCount = 0;
 };
 
 #endif

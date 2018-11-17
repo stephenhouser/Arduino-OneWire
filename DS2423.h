@@ -28,8 +28,11 @@
 class DS2423 : public OneWireDevice {
     public:
         DS2423(OneWire *ow, uint8_t *address);
+
         void begin(uint8_t counter=DS2423_COUNTER_A);
         void update();
+        String toString();
+
         uint32_t getCount(uint8_t counter=DS2423_COUNTER_A);
 
     private:
