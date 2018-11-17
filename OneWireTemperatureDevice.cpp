@@ -28,7 +28,6 @@ void OneWireTemperatureDevice::begin() {
 }
 
 bool OneWireTemperatureDevice::readTemperature(uint8_t *data) {
-	_timestamp = millis();
 	_ow->reset();
 	_ow->select(_address);
 	_ow->write(DS_TEMPERATURE_CONVERSION_COMMAND, 0);

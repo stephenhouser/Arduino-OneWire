@@ -1,4 +1,4 @@
-/* OneWireWindSpeed.h
+/* OneWireSpeed.h
  *
  * (C) 2018 Stephen Houser https://stephenhouser.com
  * (based on code by Joe Bechter -- (C) 2012, bechter.com)
@@ -16,16 +16,16 @@
  *  a link to the original source.
  */
 
-#ifndef OneWireWindSpeed_h
-#define OneWireWindSpeed_h
+#ifndef OneWireSpeed_h
+#define OneWireSpeed_h
 
 #include <Arduino.h>
 #include <OneWireDevice.h>
 #include <DS2423.h>
 
-class OneWireWindSpeed : public DS2423 {
+class OneWireSpeed : public DS2423 {
     public:
-        OneWireWindSpeed(OneWire *ow, uint8_t *address);
+        OneWireSpeed(OneWire *ow, uint8_t *address);
 
         void begin();
         void update();

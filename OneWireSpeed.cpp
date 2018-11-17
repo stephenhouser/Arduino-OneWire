@@ -1,4 +1,4 @@
-/* OneWireWindSpeed.cpp
+/* OneWireSpeed.cpp
  *
  * (C) 2018 Stephen Houser https://stephenhouser.com
  * (based on code by Joe Bechter -- (C) 2012, bechter.com)
@@ -16,7 +16,7 @@
  *  a link to the original source.
  */
 
-#include "OneWireWindSpeed.h"
+#include "OneWireSpeed.h"
 
 /* Taken from:
  * https://www.element14.com/community/groups/internet-of-things/blog/2015/01/07/old-meets-new-the-1-wire-weather-station-on-the-spark-core-part-5
@@ -41,15 +41,15 @@
  * Calculations based on OneWireWeather Station: http://oww.sourceforge.net
  */
 
-OneWireWindSpeed::OneWireWindSpeed(OneWire *ow, uint8_t *address)
+OneWireSpeed::OneWireSpeed(OneWire *ow, uint8_t *address)
     : DS2423(ow, address){};
 
-void OneWireWindSpeed::begin() {
+void OneWireSpeed::begin() {
   	DS2423::begin(DS2423_COUNTER_A);
   	windSpeedRPS = 0.0;
 }
 
-void OneWireWindSpeed::update() {
+void OneWireSpeed::update() {
 	// wait at least 1 second between reads to get semi-accurate
 	// measurements.
 	if ((millis() - lastReadTimestamp) >= 1000) {
@@ -67,7 +67,7 @@ void OneWireWindSpeed::update() {
 	}
 }
 
-float OneWireWindSpeed::getWindSpeedMPH() {
+float OneWireSpeed::getWindSpeedMPH() {
 	if ((windSpeedRPS >= 0) && (windSpeedRPS * 2.453 < 200.0)) {
 		return (float)windSpeedRPS * 2.453F;
 	}
@@ -75,10 +75,10 @@ float OneWireWindSpeed::getWindSpeedMPH() {
 	return 0.0;
 }
 
-float OneWireWindSpeed::getWindSpeedKMPH() {
+float OneWireSpeed::getWindSpeedKMPH() {
   	return getWindSpeedMPH() * 0.447040972F;
 }
 
-String OneWireWindSpeed::toString() {
+String OneWireSpeed::toString() {
   return String(getWindSpeedKMPH(), 2) + " km/h";
 }

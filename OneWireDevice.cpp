@@ -20,9 +20,8 @@
 #include "OneWireTemperatureDevice.h"
 #include "DS1822.h"
 #include "DS18S20.h"
-#include "DS2423.h"
-#include "OneWireTemperatureDevice.h"
-#include "OneWireWindSpeed.h"
+#include "OneWireDirection.h"
+#include "OneWireSpeed.h"
 
 OneWireDevice *OneWireDevice::objectForDevice(OneWire *ow, uint8_t *address) {
 	OneWireDevice *device = NULL;
@@ -34,10 +33,11 @@ OneWireDevice *OneWireDevice::objectForDevice(OneWire *ow, uint8_t *address) {
 		case 0x1D:
 			Serial.println("DS2423 RAM/Counter");
 			//device = new DS2423(ow, address);
-			device = new OneWireWindSpeed(ow, address);
+			device = new OneWireSpeed(ow, address);
 			break;
 		case 0x20:
 			Serial.println("DS2450 Quad A/D");
+			device = new OneWireDirection(ow, address);
 			break;
 		case 0x22:
 			Serial.println("DS1822 Temp");
