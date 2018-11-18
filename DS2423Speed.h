@@ -1,4 +1,4 @@
-/* OneWireSpeed.h
+/* DS2423Speed.h
  *
  * (C) 2018 Stephen Houser https://stephenhouser.com
  * (based on code by Joe Bechter -- (C) 2012, bechter.com)
@@ -16,28 +16,28 @@
  *  a link to the original source.
  */
 
-#ifndef OneWireSpeed_h
-#define OneWireSpeed_h
+#ifndef DS2423Speed_h
+#define DS2423Speed_h
 
 #include <Arduino.h>
-#include <OneWireDevice.h>
-#include <DS2423.h>
+#include "DS2423.h"
 
-class OneWireSpeed : public DS2423 {
+class DS2423Speed : public DS2423 {
     public:
-        OneWireSpeed(OneWire *ow, uint8_t *address);
+        DS2423Speed(OneWire *ow, uint8_t *address);
 
         void begin();
         void update();
         String toString();
+        String toJSON();
 
-		float getWindSpeedMPH();
-		float getWindSpeedKMPH();
+		float getSpeedMPH();
+		float getSpeedKMPH();
 
     private:
-        float windSpeedRPS;
-        unsigned long lastReadTimestamp = 0;
-        uint32_t lastReadCount = 0;
+        float revolutionsPerSecond;
+        unsigned long lastTimestamp = 0;
+        uint32_t lastCount = 0;
 };
 
 #endif

@@ -42,15 +42,15 @@ class DS2438 : public OneWireTemperatureDevice {
         float getVoltage(int channel=DS2438_CHA);
 
     private:
-        uint8_t _mode;
-        double _temperature;
-        float _voltageA;
-        float _voltageB;
-
         boolean startConversion(int channel, boolean doTemperature);
         boolean selectChannel(int channel);
         void writePageZero(uint8_t *data);
         boolean readPageZero(uint8_t *data);
+
+        uint8_t mode;
+        double temperature;
+        float voltageA;
+        float voltageB;
 };
 
 #endif

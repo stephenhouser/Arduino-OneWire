@@ -1,4 +1,4 @@
-/* OneWireDirection.h
+/* DS2450Direction.h
  *
  * (C) 2018 Stephen Houser https://stephenhouser.com
  * (based on code by Joe Bechter -- (C) 2012, bechter.com)
@@ -20,22 +20,17 @@
 #define OneWireDirection_h
 
 #include <Arduino.h>
-#include <OneWireDevice.h>
-#include <DS2450.h>
+#include "DS2450.h"
 
-class OneWireDirection : public DS2450 {
+class DS2450Direction : public DS2450 {
     public:
-        OneWireDirection(OneWire *ow, uint8_t *address);
+        DS2450Direction(OneWire *ow, uint8_t *address);
 
-        void begin();
-        void update();
         String toString();
+        String toJSON();
 
-		float getDirection();
+		uint8_t getDirection();
 		String getBearing();
-
-    private:
-		int direction;
 };
 
 #endif

@@ -24,28 +24,23 @@ OneWireTemperatureDevice::OneWireTemperatureDevice(OneWire *ow, uint8_t *address
 
 void OneWireTemperatureDevice::begin() {
   OneWireDevice::begin();
-  _temperature = 0.0;
+  temperature = 0.0;
 }
 
-bool OneWireTemperatureDevice::readTemperature(uint8_t *data) {
-	_ow->reset();
-	_ow->select(_address);
-	_ow->write(DS_TEMPERATURE_CONVERSION_COMMAND, 0);
-	vTaskDelay(DS_TEMPERATURE_CONVERSION_DELAY / portTICK_PERIOD_MS);
-	_ow->reset();
-	_ow->select(_address);
-	_ow->write(DS_READ_SCRATCHPAD_COMMAND, 0);
-	for (int i = 0; i < 9; i++) {
-			data[i] = _ow->read();
-	}
-
-	return data[8] != _ow->crc8(data, 8);
+double OneWireTemperatureDevice::getTemperature() { 
+	return temperature; 
 }
-
-double OneWireTemperatureDevice::getTemperature() { return _temperature; }
 
 String OneWireTemperatureDevice::toString() {
   float celsius = this->getTemperature();
   float fahrenheit = celsius * 1.8 + 32.0;
   return String(fahrenheit, 2) + "°F " + String(celsius, 2) + "°C";
+}
+
+String OneWireTemperatureDevice::toJSON() {
+    float celsius = this->getTemperature();
+    return "{\"address\":\"" + getAddressString() + "\"," +
+            "\"timestamp\":" + timestamp + "," +
+            "\"temperature\":\"" + celsius + "," +
+            "\"units\":\"°C\"" + "}";
 }

@@ -17,38 +17,36 @@
  */
 
 #include "OneWireDevice.h"
-#include "OneWireTemperatureDevice.h"
 #include "DS1822.h"
 #include "DS18S20.h"
-#include "OneWireDirection.h"
-#include "OneWireSpeed.h"
+#include "DS2450Direction.h"
+#include "DS2423Speed.h"
 
 OneWireDevice *OneWireDevice::objectForDevice(OneWire *ow, uint8_t *address) {
 	OneWireDevice *device = NULL;
   	switch (address[0]) {
 		case 0x10:
-			Serial.println("DS18S20 Temp");
+			//Serial.println("DS18S20 Temp");
 			device = new DS18S20(ow, address);
 			break;
 		case 0x1D:
-			Serial.println("DS2423 RAM/Counter");
-			//device = new DS2423(ow, address);
-			device = new OneWireSpeed(ow, address);
+			//Serial.println("DS2423 RAM/Counter");
+			device = new DS2423Speed(ow, address);
 			break;
 		case 0x20:
-			Serial.println("DS2450 Quad A/D");
-			device = new OneWireDirection(ow, address);
+			//Serial.println("DS2450 Quad A/D");
+			device = new DS2450Direction(ow, address);
 			break;
 		case 0x22:
-			Serial.println("DS1822 Temp");
+			//Serial.println("DS1822 Temp");
 			device = new DS1822(ow, address);
 			break;
 		case 0x28:
-			Serial.println("DS18B20 Temp");
+			//Serial.println("DS18B20 Temp");
 			device = new DS1822(ow, address);
 			break;
 		case 0x29:
-			Serial.println("DS2408 8 Switch");
+			//Serial.println("DS2408 8 Switch");
 			break;
 		default:
             device = NULL;
@@ -59,32 +57,44 @@ OneWireDevice *OneWireDevice::objectForDevice(OneWire *ow, uint8_t *address) {
 }
 
 OneWireDevice::OneWireDevice(OneWire *ow, uint8_t *address) {
-  	_ow = ow;
+  	this->ow = ow;
 
 	// copy address
 	for (byte i = 0; i < 8; i++) {
-		this->_address[i] = address[i];
+		this->address[i] = address[i];
 	}
 }
 
 void OneWireDevice::begin() {
-  	_error = true;
-  	_timestamp = 0;
+  	error = true;
+  	timestamp = 0;
 }
 
 void OneWireDevice::update() {
-  _timestamp = millis();
+  	timestamp = millis();
 }
 
 boolean OneWireDevice::isError() {
-	return _error; 
+	return error; 
 }
 
 unsigned long OneWireDevice::getTimestamp() {
-	return _timestamp; 
+	return timestamp; 
 }
 
 String OneWireDevice::toString() { 
-	return "NoDevice"; 
+	return ""; 
 }
 
+String OneWireDevice::getAddressString() {
+	String addr = "";
+	for (int i = 0; i < 8; i++) {
+		addr += String(address[i], HEX);
+	}
+	return addr;
+}
+
+String OneWireDevice::toJSON() {
+  	return "{\"address\":\"" + getAddressString() + "\"," +
+			"\"timestamp\":" + timestamp + "}";
+}

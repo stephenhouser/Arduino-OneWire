@@ -18,21 +18,37 @@
 
 #include "DS1822.h"
 
+#define DS1822_TEMPERATURE_CONVERSION_COMMAND 0x44
+#define DS1822_READ_SCRATCHPAD_COMMAND 0xbe
+#define DS1822_TEMPERATURE_CONVERSION_DELAY 750
+
 DS1822::DS1822(OneWire *ow, uint8_t *address) : OneWireTemperatureDevice(ow, address) {
 }
 
 void DS1822::update() {
-	uint8_t data[9];
+	OneWireTemperatureDevice::update();
 
-	_timestamp = millis();
-	_error = this->readTemperature(data);
-	if (!_error) {
+	uint8_t data[9];
+    ow->reset();
+    ow->select(address);
+    ow->write(DS1822_TEMPERATURE_CONVERSION_COMMAND, 0);
+    vTaskDelay(DS1822_TEMPERATURE_CONVERSION_DELAY / portTICK_PERIOD_MS);
+    ow->reset();
+    ow->select(address);
+    ow->write(DS1822_READ_SCRATCHPAD_COMMAND, 0);
+
+    for (int i = 0; i < 9; i++) {
+      data[i] = ow->read();
+    }
+
+    error = data[8] != ow->crc8(data, 8);	
+	if (!error) {
 		int16_t raw = (data[1] << 8) | data[0];
 		byte cfg = (data[4] & 0x60);
 
 		// at lower res, the low bits are undefined, so let's zero them
 		if (cfg == 0x00) {
-            raw = raw & ~7; // 9 bit resolution, 93.75 ms
+			raw = raw & ~7; // 9 bit resolution, 93.75 ms
 		} else if (cfg == 0x20) {
 			raw = raw & ~3; // 10 bit res, 187.5 ms
 		} else if (cfg == 0x40) {
@@ -40,6 +56,6 @@ void DS1822::update() {
 							// default is 12 bit resolution, 750 ms conversion time
 		}
 
-		_temperature = (float)raw / 16.0;
+		temperature = (float)raw / 16.0;
 	}
 }

@@ -18,15 +18,32 @@
 
 #include "DS18S20.h"
 
+#define DS18S20_TEMPERATURE_CONVERSION_COMMAND 0x44
+#define DS18S20_READ_SCRATCHPAD_COMMAND 0xbe
+#define DS18S20_TEMPERATURE_CONVERSION_DELAY 750
+
 DS18S20::DS18S20(OneWire *ow, uint8_t *address) : OneWireTemperatureDevice(ow, address) {
 }
 
 void DS18S20::update() {
-    uint8_t data[9];
+    OneWireTemperatureDevice::update();
 
-    _timestamp = millis();
-    _error = this->readTemperature(data);
-    if (!_error) {
+    uint8_t data[9];
+    ow->reset();
+    ow->select(address);
+    ow->write(DS18S20_TEMPERATURE_CONVERSION_COMMAND, 0);
+    vTaskDelay(DS18S20_TEMPERATURE_CONVERSION_DELAY / portTICK_PERIOD_MS);
+    ow->reset();
+    ow->select(address);
+    ow->write(DS18S20_READ_SCRATCHPAD_COMMAND, 0);
+
+    for (int i = 0; i < 9; i++) {
+      data[i] = ow->read();
+    }
+
+    error = data[8] != ow->crc8(data, 8);
+
+    if (!error) {
         uint8_t lsb = data[0];
         uint8_t msb = data[1];
         int16_t temp = (msb << 8) + lsb;
@@ -35,9 +52,9 @@ void DS18S20::update() {
             temp = (temp ^ 0xffff) + 1;
         }
 
-        _temperature = (double)temp / 2.0 + 0.05;
+        temperature = (double)temp / 2.0 + 0.05;
         if (sign) {
-           _temperature = 0.0 - _temperature;
+           temperature = 0.0 - temperature;
         }
     }
 }

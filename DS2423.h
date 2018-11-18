@@ -36,12 +36,13 @@ class DS2423 : public OneWireDevice {
         uint32_t getCount(uint8_t counter=DS2423_COUNTER_A);
 
     private:
-        uint8_t _counter;
-        boolean _errorA;
-        boolean _errorB;
-        uint32_t _countA;
-        uint32_t _countB;
         void readCounter(uint8_t counter);
+
+        uint8_t counter;
+        boolean errorA;
+        boolean errorB;
+        uint32_t countA;
+        uint32_t countB;
 };
 
 #endif

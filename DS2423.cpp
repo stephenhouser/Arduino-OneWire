@@ -29,36 +29,36 @@ DS2423::DS2423(OneWire *ow, uint8_t *address) : OneWireDevice(ow, address) {
 void DS2423::begin(uint8_t counter) {
 	OneWireDevice::begin();
 
-	_errorA = false;
-	_errorB = false;
-	_counter = counter & (DS2423_COUNTER_A | DS2423_COUNTER_B);
+	errorA = false;
+	errorB = false;
+	counter = counter & (DS2423_COUNTER_A | DS2423_COUNTER_B);
 	if (counter & DS2423_COUNTER_A) {
-		_errorA = true;
+		errorA = true;
 	} else if (counter & DS2423_COUNTER_B) {
-		_errorB = true;
+		errorB = true;
 	} else {
-		_errorA = true;
-		_errorB = true;
+		errorA = true;
+		errorB = true;
 	}
-	_countA = 0;
-	_countB = 0;
+	countA = 0;
+	countB = 0;
 }
 
 void DS2423::update() {
-	_timestamp = millis();
-	if (_counter & DS2423_COUNTER_A) {
+	timestamp = millis();
+	if (counter & DS2423_COUNTER_A) {
 		readCounter(DS2423_COUNTER_A);
 	}
-	if (_counter & DS2423_COUNTER_B) {
+	if (counter & DS2423_COUNTER_B) {
 		readCounter(DS2423_COUNTER_B);
 	}
 }
 
 uint32_t DS2423::getCount(uint8_t counter) {
 	if (counter == DS2423_COUNTER_A) {
-		return _countA;
+		return countA;
 	} else if (counter == DS2423_COUNTER_B) {
-		return _countB;
+		return countB;
 	} else {
 		return 0;
 	}
@@ -70,33 +70,33 @@ void DS2423::readCounter(uint8_t counter) {
 	data[0] = DS2423_READ_MEMORY_COMMAND;
 	data[1] = (counter == DS2423_COUNTER_B ? DS2423_PAGE_TWO : DS2423_PAGE_ONE);
 	data[2] = 0x01;
-	_ow->reset();
-	_ow->select(_address);
-	_ow->write(data[0], 0);
-	_ow->write(data[1], 0);
-	_ow->write(data[2], 0);
+	ow->reset();
+	ow->select(address);
+	ow->write(data[0], 0);
+	ow->write(data[1], 0);
+	ow->write(data[2], 0);
 	for (int j = 3; j < 45; j++) {
-		data[j] = _ow->read();
+		data[j] = ow->read();
 	}
-	_ow->reset();
+	ow->reset();
 	uint32_t count = (uint32_t)data[38];
 	for (int j = 37; j >= 35; j--) {
 		count = (count << 8) + (uint32_t)data[j];
 	}
-	uint16_t crc = _ow->crc16(data, 43);
+	uint16_t crc = ow->crc16(data, 43);
 	uint8_t *crcBytes = (uint8_t *)&crc;
 	uint8_t crcLo = ~data[43];
 	uint8_t crcHi = ~data[44];
 	boolean error = (crcLo != crcBytes[0]) || (crcHi != crcBytes[1]);
 	if (counter == DS2423_COUNTER_A) {
-		_countA = count;
-		_errorA = error;
+		countA = count;
+		errorA = error;
 	} else if (counter == DS2423_COUNTER_B) {
-		_countB = count;
-		_errorB = error;
+		countB = count;
+		errorB = error;
 	}
 }
 
 String DS2423::toString() {
-  return "(" + String(_countA) + ", " + String(_countB) + ")";
+  return "(" + String(countA) + ", " + String(countB) + ")";
 }

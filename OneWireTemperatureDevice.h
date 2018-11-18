@@ -21,22 +21,20 @@
 
 #include <OneWireDevice.h>
 
-#define DS_TEMPERATURE_CONVERSION_COMMAND 0x44
-#define DS_READ_SCRATCHPAD_COMMAND 0xbe
-#define DS_TEMPERATURE_CONVERSION_DELAY 750
-
 class OneWireTemperatureDevice : public OneWireDevice {
     public:
         OneWireTemperatureDevice(OneWire *ow, uint8_t *address);
 
         void begin();
         String toString();
-
+        String toJSON();
+        
         double getTemperature();
 
 	protected:
 		boolean readTemperature(uint8_t *data);
-        double _temperature;
+        
+        double temperature;
 };
 
 #endif

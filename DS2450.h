@@ -27,12 +27,13 @@ class DS2450 : public OneWireDevice {
         DS2450(OneWire *ow, uint8_t *address);
         void begin();
         void update();
+
 		String toString();
 
         float getVoltage(int channel);
 
     private:
-        float _voltage[4];
+        float voltage[4];
 };
 
 #endif

@@ -34,19 +34,19 @@ DS2438::DS2438(OneWire *ow, uint8_t *address) : OneWireTemperatureDevice(ow, add
 void DS2438::begin(uint8_t mode) {
 	OneWireDevice::begin();
 
-  	_mode = mode & (DS2438_MODE_CHA | DS2438_MODE_CHB | DS2438_MODE_TEMPERATURE);
-  	_voltageA = 0.0;
-  	_voltageB = 0.0;
+  	mode = mode & (DS2438_MODE_CHA | DS2438_MODE_CHB | DS2438_MODE_TEMPERATURE);
+  	voltageA = 0.0;
+  	voltageB = 0.0;
 }
 
 void DS2438::update() {
 	uint8_t data[9];
 
-	_error = true;
-	_timestamp = millis();
+	error = true;
+	timestamp = millis();
 
-	if (_mode & DS2438_MODE_CHA || _mode == DS2438_MODE_TEMPERATURE) {
-		boolean doTemperature = _mode & DS2438_MODE_TEMPERATURE;
+	if (mode & DS2438_MODE_CHA || mode == DS2438_MODE_TEMPERATURE) {
+		boolean doTemperature = mode & DS2438_MODE_TEMPERATURE;
 		if (!startConversion(DS2438_CHA, doTemperature)) {
 			return;
 		}
@@ -56,15 +56,15 @@ void DS2438::update() {
 		}
 
 		if (doTemperature) {
-			_temperature = (double)(((((int16_t)data[2]) << 8) | (data[1] & 0x0ff)) >> 3) * 0.03125;
+			temperature = (double)(((((int16_t)data[2]) << 8) | (data[1] & 0x0ff)) >> 3) * 0.03125;
 		}
-		if (_mode & DS2438_MODE_CHA) {
-			_voltageA = (((data[4] << 8) & 0x00300) | (data[3] & 0x0ff)) / 100.0;
+		if (mode & DS2438_MODE_CHA) {
+			voltageA = (((data[4] << 8) & 0x00300) | (data[3] & 0x0ff)) / 100.0;
 		}
 	}
 
-	if (_mode & DS2438_MODE_CHB) {
-		boolean doTemperature = _mode & DS2438_MODE_TEMPERATURE && !(_mode & DS2438_MODE_CHA);
+	if (mode & DS2438_MODE_CHB) {
+		boolean doTemperature = mode & DS2438_MODE_TEMPERATURE && !(mode & DS2438_MODE_CHA);
 		if (!startConversion(DS2438_CHB, doTemperature)) {
 			return;
 		}
@@ -74,20 +74,20 @@ void DS2438::update() {
 		}
 
 		if (doTemperature) {
-			_temperature = (double)(((((int16_t)data[2]) << 8) | (data[1] & 0x0ff)) >> 3) * 0.03125;
+			temperature = (double)(((((int16_t)data[2]) << 8) | (data[1] & 0x0ff)) >> 3) * 0.03125;
 		}
 
-		_voltageB = (((data[4] << 8) & 0x00300) | (data[3] & 0x0ff)) / 100.0;
+		voltageB = (((data[4] << 8) & 0x00300) | (data[3] & 0x0ff)) / 100.0;
 	}
 
-	_error = false;
+	error = false;
 }
 
 float DS2438::getVoltage(int channel) {
 	if (channel == DS2438_CHA) {
-		return _voltageA;
+		return voltageA;
 	} else if (channel == DS2438_CHB) {
-		return _voltageB;
+		return voltageB;
 	} else {
 		return 0.0;
 	}
@@ -98,16 +98,16 @@ boolean DS2438::startConversion(int channel, boolean doTemperature) {
 		return false;
 	}
 
-	_ow->reset();
-	_ow->select(_address);
+	ow->reset();
+	ow->select(address);
 	if (doTemperature) {
-		_ow->write(DS2438_TEMPERATURE_CONVERSION_COMMAND, 0);
+		ow->write(DS2438_TEMPERATURE_CONVERSION_COMMAND, 0);
         vTaskDelay(DS2438_TEMPERATURE_DELAY / portTICK_PERIOD_MS);
-		_ow->reset();
-		_ow->select(_address);
+		ow->reset();
+		ow->select(address);
 	}
 
-	_ow->write(DS2438_VOLTAGE_CONVERSION_COMMAND, 0);
+	ow->write(DS2438_VOLTAGE_CONVERSION_COMMAND, 0);
     vTaskDelay(DS2438_VOLTAGE_CONVERSION_DELAY / portTICK_PERIOD_MS);
     return true;
 }
@@ -127,28 +127,31 @@ boolean DS2438::selectChannel(int channel) {
 }
 
 void DS2438::writePageZero(uint8_t *data) {
-	_ow->reset();
-	_ow->select(_address);
-	_ow->write(DS2438_WRITE_SCRATCHPAD_COMMAND, 0);
-	_ow->write(DS2438_PAGE_0, 0);
-	for (int i = 0; i < 8; i++)
-		_ow->write(data[i], 0);
-	_ow->reset();
-	_ow->select(_address);
-	_ow->write(DS2438_COPY_SCRATCHPAD_COMMAND, 0);
-	_ow->write(DS2438_PAGE_0, 0);
+	ow->reset();
+	ow->select(address);
+	ow->write(DS2438_WRITE_SCRATCHPAD_COMMAND, 0);
+	ow->write(DS2438_PAGE_0, 0);
+	for (int i = 0; i < 8; i++) {
+		ow->write(data[i], 0);
+	}
+		
+	ow->reset();
+	ow->select(address);
+	ow->write(DS2438_COPY_SCRATCHPAD_COMMAND, 0);
+	ow->write(DS2438_PAGE_0, 0);
 }
 
 boolean DS2438::readPageZero(uint8_t *data) {
-	_ow->reset();
-	_ow->select(_address);
-	_ow->write(DS2438_RECALL_MEMORY_COMMAND, 0);
-	_ow->write(DS2438_PAGE_0, 0);
-	_ow->reset();
-	_ow->select(_address);
-	_ow->write(DS2438_READ_SCRATCHPAD_COMMAND, 0);
-	_ow->write(DS2438_PAGE_0, 0);
-	for (int i = 0; i < 9; i++)
-		data[i] = _ow->read();
-	return _ow->crc8(data, 8) == data[8];
+	ow->reset();
+	ow->select(address);
+	ow->write(DS2438_RECALL_MEMORY_COMMAND, 0);
+	ow->write(DS2438_PAGE_0, 0);
+	ow->reset();
+	ow->select(address);
+	ow->write(DS2438_READ_SCRATCHPAD_COMMAND, 0);
+	ow->write(DS2438_PAGE_0, 0);
+	for (int i = 0; i < 9; i++) {
+		data[i] = ow->read();
+	}
+	return ow->crc8(data, 8) == data[8];
 }

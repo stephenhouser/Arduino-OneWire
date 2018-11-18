@@ -1,4 +1,4 @@
-/* OneWireSpeed.cpp
+/* DS2423Speed.cpp
  *
  * (C) 2018 Stephen Houser https://stephenhouser.com
  * (based on code by Joe Bechter -- (C) 2012, bechter.com)
@@ -16,7 +16,7 @@
  *  a link to the original source.
  */
 
-#include "OneWireSpeed.h"
+#include "DS2423Speed.h"
 
 /* Taken from:
  * https://www.element14.com/community/groups/internet-of-things/blog/2015/01/07/old-meets-new-the-1-wire-weather-station-on-the-spark-core-part-5
@@ -41,44 +41,53 @@
  * Calculations based on OneWireWeather Station: http://oww.sourceforge.net
  */
 
-OneWireSpeed::OneWireSpeed(OneWire *ow, uint8_t *address)
-    : DS2423(ow, address){};
+DS2423Speed::DS2423Speed(OneWire *ow, uint8_t *address) : DS2423(ow, address) {
 
-void OneWireSpeed::begin() {
-  	DS2423::begin(DS2423_COUNTER_A);
-  	windSpeedRPS = 0.0;
+};
+
+void DS2423Speed::begin() {
+	DS2423::begin(DS2423_COUNTER_A);
+	lastCount = 0;
+	lastTimestamp = 0;
+	revolutionsPerSecond = 0.0;
 }
 
-void OneWireSpeed::update() {
-	// wait at least 1 second between reads to get semi-accurate
-	// measurements.
-	if ((millis() - lastReadTimestamp) >= 1000) {
+void DS2423Speed::update() {
+	// wait at least 1 second between reads to get more accurate measurements.
+	if ((millis() - lastTimestamp) >= 1000) {
 		DS2423::update();
 
-		unsigned long currentTimestamp = getTimestamp();
 		uint32_t currentCount = getCount(DS2423_COUNTER_A);
 
-		float count = (currentCount - lastReadCount) * 1000.0;
-		float milliSeconds = (currentTimestamp - lastReadTimestamp);
-		windSpeedRPS = (count / milliSeconds) / 2; /* two magnets */
+		float count = (currentCount - lastCount) * 1000.0;
+		float milliSeconds = (timestamp - lastTimestamp);
 
-		lastReadCount = currentCount;
-		lastReadTimestamp = currentTimestamp;
+		revolutionsPerSecond = (count / milliSeconds) / 2; /* two magnets */
+		lastCount = currentCount;
+		lastTimestamp = timestamp;
 	}
 }
 
-float OneWireSpeed::getWindSpeedMPH() {
-	if ((windSpeedRPS >= 0) && (windSpeedRPS * 2.453 < 200.0)) {
-		return (float)windSpeedRPS * 2.453F;
+float DS2423Speed::getSpeedMPH() {
+  	/* 2.453 taken from http://oww.sourceforge.net */
+	if ((revolutionsPerSecond >= 0) && (revolutionsPerSecond * 2.453 < 200.0)) {
+		return (float)revolutionsPerSecond * 2.453F;
 	}
 
 	return 0.0;
 }
 
-float OneWireSpeed::getWindSpeedKMPH() {
-  	return getWindSpeedMPH() * 0.447040972F;
+float DS2423Speed::getSpeedKMPH() {
+	return getSpeedMPH() * 0.447040972F;	/* convert m/h to km/h */
 }
 
-String OneWireSpeed::toString() {
-  return String(getWindSpeedKMPH(), 2) + " km/h";
+String DS2423Speed::toString() {
+  	return String(getSpeedKMPH(), 2) + " km/h";
+}
+
+String DS2423Speed::toJSON() {
+  	return "{\"address\":\"" + getAddressString() + "\"," +
+         	"\"timestamp\":" + timestamp + "," + 
+		 	"\"speed\":" + String(getSpeedKMPH(), 2) + "," +
+		 	"\"units\":\"km/h\" }";
 }

@@ -32,13 +32,17 @@ class OneWireDevice {
         virtual void update();
         virtual unsigned long getTimestamp();
         virtual boolean isError();
+
 		virtual String toString();
+        virtual String toJSON();
         
     protected:
-        OneWire *_ow;
-        uint8_t _address[8];
-        unsigned long _timestamp;
-        boolean _error;
+        String getAddressString();
+        
+        OneWire *ow;
+        uint8_t address[8];
+        unsigned long timestamp;
+        boolean error;
 };
 
 
