@@ -41,6 +41,6 @@ String OneWireTemperatureDevice::toJSON() {
     float celsius = this->getTemperature();
     return "{\"address\":\"" + getAddressString() + "\"," +
             "\"timestamp\":" + timestamp + "," +
-            "\"temperature\":\"" + celsius + "," +
+            "\"temperature\":" + celsius + "," +
             "\"units\":\"°C\"" + "}";
 }
