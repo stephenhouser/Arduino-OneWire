@@ -71,20 +71,21 @@ void DS2450::begin() {
 
 void DS2450::update() {
 	uint8_t data[13];
-    OneWireDevice::update();
 
-    _error = true;
+	OneWireDevice::update();
 
-    _ow->reset();
-    _ow->select(_address);
-    data[0] = DS2450_BEGIN_VOLTAGE_CONVERSION;
-    data[1] = DS2450_REGISTER_4CHANNEL;
-    data[2] = DS2450_READOUT_CONTROL;
-    _ow->write(data[0], 0);
-    _ow->write(data[1], 0);
-    _ow->write(data[2], 0);
-    data[3] = _ow->read(); // crc
-    data[4] = _ow->read();
+	_error = true;
+
+	_ow->reset();
+	_ow->select(_address);
+	data[0] = DS2450_BEGIN_VOLTAGE_CONVERSION;
+	data[1] = DS2450_REGISTER_4CHANNEL;
+	data[2] = DS2450_READOUT_CONTROL;
+	_ow->write(data[0], 0);
+	_ow->write(data[1], 0);
+	_ow->write(data[2], 0);
+	data[3] = _ow->read(); // crc
+	data[4] = _ow->read();
 
 	while (1) {
 		if ((long)millis() - (long)_timestamp <= DS2450_TEMP_CONVERSION_TIMEOUT) {
@@ -113,7 +114,7 @@ void DS2450::update() {
 	}
 
 	_voltage[0] = (float)data[4] / 50.0;
-    _voltage[1] = (float)data[6] / 50.0;
+	_voltage[1] = (float)data[6] / 50.0;
 	_voltage[2] = (float)data[8] / 50.0;
 	_voltage[3] = (float)data[10] / 50.0;
 

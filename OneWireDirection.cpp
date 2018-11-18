@@ -40,7 +40,6 @@ const float directionTable[16][4] = {
     {4.5, 4.5, 2.5, 2.5}  // NNW
 };
 
-
 const char directions[17][4] = {"N",  "NNE", "NE", "ENE", "E",  "ESE",
                                 "SE", "SSE", "S",  "SSW", "SW", "WSW",
                                 "W",  "WNW", "NW", "NNW", "Err"};
@@ -56,33 +55,27 @@ void OneWireDirection::update() {
     DS2450::update();
 
     if (!isError()) {
-		direction = 16;
+        direction = 16;
 
-		float ch_a = getVoltage(0);
-		float ch_b = getVoltage(1);
-		float ch_c = getVoltage(2);
-		float ch_d = getVoltage(3);
+        float ch_a = getVoltage(0);
+        float ch_b = getVoltage(1);
+        float ch_c = getVoltage(2);
+        float ch_d = getVoltage(3);
 
-		for (int i = 0; i < 16; i++) {
-			if (((ch_a < directionTable[i][0] + 1.0) &&
-				(ch_a >= directionTable[i][0] - 1.0)) &&
-				((ch_b < directionTable[i][1] + 1.0) &&
-				(ch_b >= directionTable[i][1] - 1.0)) &&
-				((ch_c < directionTable[i][2] + 1.0) &&
-				(ch_c >= directionTable[i][2] - 1.0)) &&
-				((ch_d < directionTable[i][3] + 1.0) &&
-				(ch_d >= directionTable[i][3] - 1.0))) {
+        for (int i = 0; i < 16; i++) {
+            if (((ch_a < directionTable[i][0] + 1.0) &&
+              (ch_a >= directionTable[i][0] - 1.0)) &&
+              ((ch_b < directionTable[i][1] + 1.0) &&
+              (ch_b >= directionTable[i][1] - 1.0)) &&
+              ((ch_c < directionTable[i][2] + 1.0) &&
+              (ch_c >= directionTable[i][2] - 1.0)) &&
+              ((ch_d < directionTable[i][3] + 1.0) &&
+              (ch_d >= directionTable[i][3] - 1.0))) {
 
-				direction = (i + NORTH_OFFSET) % 16;
-				break;
-			}
+              direction = (i + NORTH_OFFSET) % 16;
+              break;
+            }
         }
-
-        Serial.println(String(ch_a, 2) + ", " + String(ch_b, 2) 
-						+ ", " + String(ch_c, 2) + ", " + String(ch_d, 2));
-
-        Serial.println(String(direction) + " " + getBearing());
-
     } else {
       Serial.println("Error reading from DS2450 device");
 	}
