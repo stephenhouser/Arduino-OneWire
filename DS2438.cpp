@@ -102,13 +102,13 @@ boolean DS2438::startConversion(int channel, boolean doTemperature) {
 	ow->select(address);
 	if (doTemperature) {
 		ow->write(DS2438_TEMPERATURE_CONVERSION_COMMAND, 0);
-        vTaskDelay(DS2438_TEMPERATURE_DELAY / portTICK_PERIOD_MS);
+        delay(DS2438_TEMPERATURE_DELAY);
 		ow->reset();
 		ow->select(address);
 	}
 
 	ow->write(DS2438_VOLTAGE_CONVERSION_COMMAND, 0);
-    vTaskDelay(DS2438_VOLTAGE_CONVERSION_DELAY / portTICK_PERIOD_MS);
+    delay(DS2438_VOLTAGE_CONVERSION_DELAY);
     return true;
 }
 

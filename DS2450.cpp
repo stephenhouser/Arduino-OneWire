@@ -100,7 +100,7 @@ void DS2450::update() {
 		}
 	}
 
-	vTaskDelay(1 / portTICK_PERIOD_MS);
+	delay(1);
 
 	ow->reset();
 	ow->select(address);

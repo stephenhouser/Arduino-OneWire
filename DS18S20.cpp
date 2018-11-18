@@ -32,7 +32,7 @@ void DS18S20::update() {
     ow->reset();
     ow->select(address);
     ow->write(DS18S20_TEMPERATURE_CONVERSION_COMMAND, 0);
-    vTaskDelay(DS18S20_TEMPERATURE_CONVERSION_DELAY / portTICK_PERIOD_MS);
+    delay(DS18S20_TEMPERATURE_CONVERSION_DELAY);
     ow->reset();
     ow->select(address);
     ow->write(DS18S20_READ_SCRATCHPAD_COMMAND, 0);
