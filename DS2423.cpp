@@ -20,47 +20,35 @@
 #include "DS2423.h"
 
 #define DS2423_READ_MEMORY_COMMAND 0xa5
+#define DS2432_SKIP_ROM_COMMAND 0xcc
 #define DS2423_PAGE_ONE 0xc0
 #define DS2423_PAGE_TWO 0xe0
 
 DS2423::DS2423(OneWire *ow, uint8_t *address) : OneWireDevice(ow, address) {
 };
 
-void DS2423::begin(uint8_t counter) {
+void DS2423::begin() {
 	OneWireDevice::begin();
-
-	errorA = false;
-	errorB = false;
-	counter = counter & (DS2423_COUNTER_A | DS2423_COUNTER_B);
-	if (counter & DS2423_COUNTER_A) {
-		errorA = true;
-	} else if (counter & DS2423_COUNTER_B) {
-		errorB = true;
-	} else {
-		errorA = true;
-		errorB = true;
-	}
+	errorA = true;
+	errorB = true;
 	countA = 0;
 	countB = 0;
 }
 
 void DS2423::update() {
-	timestamp = millis();
-	if (counter & DS2423_COUNTER_A) {
-		readCounter(DS2423_COUNTER_A);
-	}
-	if (counter & DS2423_COUNTER_B) {
-		readCounter(DS2423_COUNTER_B);
-	}
+	OneWireDevice::update();
+	readCounter(DS2423_COUNTER_A);
+	readCounter(DS2423_COUNTER_B);
 }
 
 uint32_t DS2423::getCount(uint8_t counter) {
-	if (counter == DS2423_COUNTER_A) {
-		return countA;
-	} else if (counter == DS2423_COUNTER_B) {
-		return countB;
-	} else {
-		return 0;
+  	switch (counter) {
+		case DS2423_COUNTER_A:
+			return countA;
+		case DS2423_COUNTER_B:
+			return countB;
+		default:
+			return 0;
 	}
 }
 
@@ -68,8 +56,9 @@ void DS2423::readCounter(uint8_t counter) {
 	uint8_t data[45];
 
 	data[0] = DS2423_READ_MEMORY_COMMAND;
-	data[1] = (counter == DS2423_COUNTER_B ? DS2423_PAGE_TWO : DS2423_PAGE_ONE);
+	data[1] = (counter == DS2423_COUNTER_A ? DS2423_PAGE_ONE : DS2423_PAGE_TWO);
 	data[2] = 0x01;
+
 	ow->reset();
 	ow->select(address);
 	ow->write(data[0], 0);
@@ -79,6 +68,7 @@ void DS2423::readCounter(uint8_t counter) {
 		data[j] = ow->read();
 	}
 	ow->reset();
+
 	uint32_t count = (uint32_t)data[38];
 	for (int j = 37; j >= 35; j--) {
 		count = (count << 8) + (uint32_t)data[j];
@@ -87,7 +77,7 @@ void DS2423::readCounter(uint8_t counter) {
 	uint8_t *crcBytes = (uint8_t *)&crc;
 	uint8_t crcLo = ~data[43];
 	uint8_t crcHi = ~data[44];
-	boolean error = (crcLo != crcBytes[0]) || (crcHi != crcBytes[1]);
+	error = (crcLo != crcBytes[0]) || (crcHi != crcBytes[1]);
 	if (counter == DS2423_COUNTER_A) {
 		countA = count;
 		errorA = error;

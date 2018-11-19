@@ -40,10 +40,10 @@ void DS2438::begin(uint8_t mode) {
 }
 
 void DS2438::update() {
+	OneWireDevice::update();
+	
 	uint8_t data[9];
-
 	error = true;
-	timestamp = millis();
 
 	if (mode & DS2438_MODE_CHA || mode == DS2438_MODE_TEMPERATURE) {
 		boolean doTemperature = mode & DS2438_MODE_TEMPERATURE;

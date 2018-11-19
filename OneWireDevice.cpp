@@ -32,6 +32,7 @@ OneWireDevice *OneWireDevice::objectForDevice(OneWire *ow, uint8_t *address) {
 		case 0x1D:
 			//Serial.println("DS2423 RAM/Counter");
 			device = new DS2423Speed(ow, address);
+			//device = new DS2423(ow, address);
 			break;
 		case 0x20:
 			//Serial.println("DS2450 Quad A/D");

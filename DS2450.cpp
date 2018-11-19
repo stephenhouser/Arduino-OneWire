@@ -74,7 +74,6 @@ void DS2450::update() {
 	OneWireDevice::update();
 
 	uint8_t data[13];
-
 	error = true;
 
 	ow->reset();

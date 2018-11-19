@@ -42,11 +42,10 @@
  */
 
 DS2423Speed::DS2423Speed(OneWire *ow, uint8_t *address) : DS2423(ow, address) {
-
 };
 
 void DS2423Speed::begin() {
-	DS2423::begin(DS2423_COUNTER_A);
+	DS2423::begin();
 	lastCount = 0;
 	lastTimestamp = 0;
 	revolutionsPerSecond = 0.0;
@@ -56,8 +55,7 @@ void DS2423Speed::update() {
 	// wait at least 1 second between reads to get more accurate measurements.
 	if ((millis() - lastTimestamp) >= 1000) {
 		DS2423::update();
-
-		uint32_t currentCount = getCount(DS2423_COUNTER_A);
+		uint32_t currentCount = getCount();
 
 		float count = (currentCount - lastCount) * 1000.0;
 		float milliSeconds = (timestamp - lastTimestamp);
