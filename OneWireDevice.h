@@ -35,9 +35,9 @@ class OneWireDevice {
 
 		virtual String toString();
         virtual String toJSON();
+        String getAddressString();
         
     protected:
-        String getAddressString();
         
         OneWire *ow;
         uint8_t address[8];
