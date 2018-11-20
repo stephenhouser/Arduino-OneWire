@@ -50,6 +50,7 @@ void DS2423Speed::begin() {
 	DS2423::begin();
 	lastCount = 0;
 	lastTimestamp = 0;
+
 	revolutionsPerSecond = 0.0;
 	maximumRPS = 0.0;
 	averageRPSSum = 0.0;
@@ -57,6 +58,13 @@ void DS2423Speed::begin() {
 }
 
 void DS2423Speed::update() {
+	// First time, initialize last values to avoid erroneous values
+	if (lastTimestamp == 0) {
+		DS2423::update();
+		lastCount = getCount();
+		lastTimestamp = timestamp;
+	}
+
 	// wait at least 1 second between reads to get more accurate measurements.
 	if ((millis() - lastTimestamp) >= 1000) {
 		DS2423::update();
