@@ -83,18 +83,30 @@ void DS2423Speed::reset() {
 }
 
 float DS2423Speed::getSpeed() {
+	if (revolutionsPerSecond == 0) {
+		return 0.0;
+	} 
+
   	/* taken from http://oww.sourceforge.net */
 	return (float)revolutionsPerSecond * RPS_TO_KMPH_MULTIPLIER;
 }
 
 float DS2423Speed::getAverageSpeed() {
-  /* taken from http://oww.sourceforge.net */
-  return ((float)averageRPSSum / (float)averageRPSCount) * RPS_TO_KMPH_MULTIPLIER;
+	if (averageRPSCount == 0) {
+		return 0.0;
+	}
+
+	/* taken from http://oww.sourceforge.net */
+	return ((float)averageRPSSum / (float)averageRPSCount) * RPS_TO_KMPH_MULTIPLIER;
 }
 
 float DS2423Speed::getMaximumSpeed() {
-  /* taken from http://oww.sourceforge.net */
-  return (float)maximumRPS * RPS_TO_KMPH_MULTIPLIER;
+	if (maximumRPS == 0) {
+		return 0.0;
+	}
+
+  	/* taken from http://oww.sourceforge.net */
+  	return (float)maximumRPS * RPS_TO_KMPH_MULTIPLIER;
 }
 
 String DS2423Speed::toString() { 
