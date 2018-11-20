@@ -51,6 +51,9 @@ void DS2423Speed::begin() {
 	lastCount = 0;
 	lastTimestamp = 0;
 	revolutionsPerSecond = 0.0;
+	maximumRPS = 0.0;
+	averageRPSSum = 0.0;
+	averageRPSCount = 0;
 }
 
 void DS2423Speed::update() {
@@ -118,7 +121,6 @@ String DS2423Speed::toJSON() {
          	"\"timestamp\":" + timestamp + "," + 
 		 	"\"speed\":" + String(getSpeed(), 2) + "," +
 		 	"\"average\":" + String(getAverageSpeed(), 2) + "," +
-		 	"\"maximum\":" + String(getMaximumSpeed(), 2) + "," +
-		 	"\"units\":\"km/h\" }";
+		 	"\"maximum\":" + String(getMaximumSpeed(), 2) + "}";
 }
 
