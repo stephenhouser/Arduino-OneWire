@@ -30,6 +30,7 @@ class OneWireDevice {
         OneWireDevice(OneWire *ow, uint8_t *address);
         virtual void begin();
         virtual void update();
+        virtual void reset();
         virtual unsigned long getTimestamp();
         virtual boolean isError();
 

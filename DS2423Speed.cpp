@@ -41,6 +41,8 @@
  * Calculations based on OneWireWeather Station: http://oww.sourceforge.net
  */
 
+#define RPS_TO_KMPH_MULTIPLIER 1.0965915043
+
 DS2423Speed::DS2423Speed(OneWire *ow, uint8_t *address) : DS2423(ow, address) {
 };
 
@@ -61,31 +63,50 @@ void DS2423Speed::update() {
 		float milliSeconds = (timestamp - lastTimestamp);
 
 		revolutionsPerSecond = (count / milliSeconds) / 2; /* two magnets */
+
+		// Update max speed and average counters
+		if (revolutionsPerSecond > maximumRPS) {
+			maximumRPS = revolutionsPerSecond;
+		}
+
+		averageRPSSum += revolutionsPerSecond;
+		averageRPSCount++;
+
 		lastCount = currentCount;
 		lastTimestamp = timestamp;
 	}
 }
-
-float DS2423Speed::getSpeedMPH() {
-  	/* 2.453 taken from http://oww.sourceforge.net */
-	if ((revolutionsPerSecond >= 0) && (revolutionsPerSecond * 2.453 < 200.0)) {
-		return (float)revolutionsPerSecond * 2.453F;
-	}
-
-	return 0.0;
+void DS2423Speed::reset() {
+	maximumRPS = 0.0;
+	averageRPSSum = 0.0;
+	averageRPSCount = 0;
 }
 
-float DS2423Speed::getSpeedKMPH() {
-	return getSpeedMPH() * 0.447040972F;	/* convert m/h to km/h */
+float DS2423Speed::getSpeed() {
+  	/* taken from http://oww.sourceforge.net */
+	return (float)revolutionsPerSecond * RPS_TO_KMPH_MULTIPLIER;
 }
 
-String DS2423Speed::toString() {
-  	return String(getSpeedKMPH(), 2) + " km/h";
+float DS2423Speed::getAverageSpeed() {
+  /* taken from http://oww.sourceforge.net */
+  return ((float)averageRPSSum / (float)averageRPSCount) * RPS_TO_KMPH_MULTIPLIER;
+}
+
+float DS2423Speed::getMaximumSpeed() {
+  /* taken from http://oww.sourceforge.net */
+  return (float)maximumRPS * RPS_TO_KMPH_MULTIPLIER;
+}
+
+String DS2423Speed::toString() { 
+	return String(getSpeed(), 2) + " km/h"; 
 }
 
 String DS2423Speed::toJSON() {
   	return "{\"address\":\"" + getAddressString() + "\"," +
          	"\"timestamp\":" + timestamp + "," + 
-		 	"\"speed\":" + String(getSpeedKMPH(), 2) + "," +
+		 	"\"speed\":" + String(getSpeed(), 2) + "," +
+		 	"\"average\":" + String(getAverageSpeed(), 2) + "," +
+		 	"\"maximum\":" + String(getMaximumSpeed(), 2) + "," +
 		 	"\"units\":\"km/h\" }";
 }
+

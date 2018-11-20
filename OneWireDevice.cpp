@@ -83,6 +83,9 @@ unsigned long OneWireDevice::getTimestamp() {
 	return timestamp; 
 }
 
+void OneWireDevice::reset() { 
+}
+
 String OneWireDevice::toString() { 
 	return ""; 
 }

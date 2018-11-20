@@ -28,16 +28,22 @@ class DS2423Speed : public DS2423 {
 
         void begin();
         void update();
+        void reset();
         String toString();
         String toJSON();
 
-		float getSpeedMPH();
-		float getSpeedKMPH();
+		float getSpeed();           // Instantaneous speed
+        float getAverageSpeed();    // average speed since last reset();
+        float getMaximumSpeed();    // maximum speed since last reset();
 
     private:
         float revolutionsPerSecond;
         unsigned long lastTimestamp = 0;
         uint32_t lastCount = 0;
+
+        uint32_t maximumRPS = 0;
+        uint32_t averageRPSSum = 0;
+        uint32_t averageRPSCount = 0;
 };
 
 #endif
