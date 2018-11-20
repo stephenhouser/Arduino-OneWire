@@ -100,7 +100,7 @@ float DS2423Speed::getAverageSpeed() {
 	}
 
 	/* taken from http://oww.sourceforge.net */
-	return ((float)averageRPSSum / (float)averageRPSCount) * RPS_TO_KMPH_MULTIPLIER;
+	return (averageRPSSum / averageRPSCount) * RPS_TO_KMPH_MULTIPLIER;
 }
 
 float DS2423Speed::getMaximumSpeed() {
@@ -109,7 +109,7 @@ float DS2423Speed::getMaximumSpeed() {
 	}
 
   	/* taken from http://oww.sourceforge.net */
-  	return (float)maximumRPS * RPS_TO_KMPH_MULTIPLIER;
+  	return maximumRPS * RPS_TO_KMPH_MULTIPLIER;
 }
 
 String DS2423Speed::toString() { 

@@ -41,8 +41,8 @@ class DS2423Speed : public DS2423 {
         unsigned long lastTimestamp = 0;
         uint32_t lastCount = 0;
 
-        uint32_t maximumRPS = 0;
-        uint32_t averageRPSSum = 0;
+        float maximumRPS = 0;
+        float averageRPSSum = 0;
         uint32_t averageRPSCount = 0;
 };
 
